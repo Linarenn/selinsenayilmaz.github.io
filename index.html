@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Selin Sena Yılmaz - Portfolyo</title>
+    <style>
+        /* GENEL SIFIRLAMA VE TEMEL STİLLER */
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #ffeaf9; /* Açık pembe arka plan */
+            background-image:
+                linear-gradient(to right, rgb(255, 255, 255, 1) 1px, transparent 3px),
+                linear-gradient(to bottom, rgb(255, 255, 255) 1px, transparent 3px);
+            background-size: 110px 55px; /* Beyaz ince çizgiler */
+            display: flex;
+            justify-content: center; /* Yatayda ortala */
+            align-items: center; /* Dikeyde ortala */
+            min-height: 100vh; /* Tam ekran yüksekliği */
+            padding: 20px;
+            box-sizing: border-box;
+            color: #333;
+            overflow: hidden; /* Body'de scrollbar olmasın */
+            position: relative; /* İçindeki absolut elementleri konumlandırmak için */
+        }
+
+        /* Sol Menü Butonları (Doğrudan arka plan üzerinde) */
+        .sidebar-outside-frame {
+            position: absolute; /* Ana içerikten bağımsız konumlandır */
+            left: 52%; /* Body'nin ortasına hizala */
+            transform: translate(calc(-50% - 400px - 150px), -50%); /* Yeni boşluk ve buton boyutuyla manuel konumlandırma */
+            top: 54%; /* Dikeyde ortala */
+            display: flex;
+            flex-direction: column;
+            gap: 38px; /* Butonlar arası boşluğu biraz artırdık */
+            z-index: 10; /* Diğer her şeyin üzerinde olsun */
+            padding: 0; /* Padding kaldırıldı */
+        }
+
+        /* Ortadaki İçerik Penceresi (Beyaz kare ve ince gri çerçeve, sağa ışınlanmış) */
+        .content-window-frame {
+            position: relative; /* Body'nin flexbox'ına göre konumlanır */
+            width: 800px; /* Sabit bir genişlik */
+            height: 500px; /* Sabit bir yükseklik */
+            background-color: #fff; /* Beyaz içerik alanı */
+            border-radius: 30px; /* Daha fazla ovalleştirildi */
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); /* Genel gölge */
+
+            /* Mevcut gri kenarlar */
+            border-top: 25px solid #A9A9A9; /* Koyu gri */
+            border-bottom: 25px solid #A9A9A9; /* Koyu gri */
+            /* Sağ ve sol border'lar burada eksik, eklemeyeceğiz */
+
+            /* YENİ EKLENEN SİYAH ÇERÇEFE (outline ile) */
+            outline: 3px solid black; /* İnce siyah dış çerçeve */
+            outline-offset: 0px; /* Çerçeveyi elemana sıfır uzaklıkta konumlandırır */
+            /* Outline ile border arasında bir miktar boşluk oluşur, daha belirgin durur. */
+
+            padding: 20px;
+            overflow-y: auto; /* İçerik taşarsa kendi scrollbar'ı olsun */
+            box-sizing: border-box;
+
+            /* Pencereyi sağa ışınlama */
+            transform: translateX(75px); /* Ekstra sağa kaydırma, isteğe göre ayarlanabilir */
+        }
+
+        /* Scrollbar stilini özelleştirmek için (Chrome/Edge/Safari) */
+        .content-window-frame::-webkit-scrollbar {
+            width: 10px;
+        }
+        .content-window-frame::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        .content-window-frame::-webkit-scrollbar-thumb {
+            background: #F8BBD0; /* Pembe scrollbar */
+            border-radius: 10px;
+        }
+        .content-window-frame::-webkit-scrollbar-thumb:hover {
+            background: #F48FB1;
+        }
+
+        /* Buton Stilleri */
+        .nav-button {
+            background-color: #f0f0f0; /* Varsayılan buton rengi */
+            color: #333;
+            border: 3px solid #222; /* İnce siyah çerçeve */
+            padding: 20px 38px; /* Yaklaşık 1.5 kat büyütüldü */
+            text-align: center; /* Metni ortala */
+            border-radius: 10px; /* Buton köşeleri şimdilik aynı kalsın */
+            cursor: pointer;
+            font-size: 1.3em; /* Yazı boyutu da büyütüldü */
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            min-width: 300px; /* Butonların minimum genişliği 1.5 katına çıkarıldı */
+            position: relative; /* ::after için gerekli*/
+            overflow: visible; /* Eğer resim buton dışına taşıyorsa görünür olmasını sağlar */
+        }
+
+        .nav-button:hover {
+            background-color: #e0e0e0;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .nav-button.active {
+            font-weight: bold;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+            border-color: #000;
+        }
+
+        /* Aktif butonun yanına çivciv resmini eklemek için */
+        .nav-button.active::after {
+            content: '';
+            background-image: url('images/chicken.PNG'); /* Resminizin yolu*/
+            background-size: contain; /* Resmin buton içinde boyutunu ayarla*/
+            background-repeat: no-repeat;
+            position: absolute;
+            left: -80px; /* Butonun solundan dışarıya doğru konumlandır. (Genişlik 60px, yarısı 30px, boşluk 30px gibi düşün) */
+            top: 0%; /* Butonun üstüne gelsin */
+            transform: translateY(-8%); /* Kendi yüksekliğinin yarısı kadar yukarı kaydırarak butonun üstüne gelsin */
+            width: 75px; /* Çivciv resminin genişliği (30px * 2 = 60px) */
+            height: 75px; /* Çivciv resminin yüksekliği (30px * 2 = 60px) */
+            z-index: 11; /* Butonların üzerinde görünmesini sağla */
+        }
+
+
+        /* Butonlara özel renkler */
+        .nav-button[data-section="home"] { background-color: #e2edff; /* Açık mavi */ }
+        .nav-button[data-section="home"].active { background-color: #d0e6ff; }
+
+        .nav-button[data-section="about"] { background-color: #e2ffe5; /* Açık yeşil */ }
+        .nav-button[data-section="about"].active { background-color: #c5ffca; }
+
+        .nav-button[data-section="experience"] { background-color: #ffebe2; /* Açık şeftali */ }
+        .nav-button[data-section="experience"].active { background-color: #ffdacb; }
+
+        .nav-button[data-section="skills"] { background-color: #ffe2e6; /* Açık pembe */ }
+        .nav-button[data-section="skills"].active { background-color: #ffd3da; }
+
+        .nav-button[data-section="contact"] { background-color: #ebdcf8; /* Açık mor */ }
+        .nav-button[data-section="contact"].active { background-color: #e8ceff; }
+
+
+        /* İçeriklerin Stil ve Düzeni (content-window-frame içinde kullanılacak) */
+        .content-section {
+            display: none; /* Varsayılan olarak gizli */
+            animation: fadeIn 0.5s ease-out; /* Geçiş efekti */
+            height: 100%; /* İçerik bölümü çerçeveyi doldursun */
+            box-sizing: border-box;
+        }
+
+        .content-section.active {
+            display: block; /* Aktif olunca göster */
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* İÇERİK STİLLERİ */
+        .content-section h2 {
+            color: #555;
+            border-bottom: 2px solid #F8BBD0; /* Pembe alt çizgi */
+            padding-bottom: 10px;
+            margin-top: 0;
+            font-size: 2em;
+        }
+
+        .content-section p, .content-section ul {
+            line-height: 1.8;
+            font-size: 1.1em;
+            color: #666;
+        }
+
+        .content-section ul {
+            list-style: disc;
+            margin-left: 25px;
+            padding: 0;
+        }
+
+        .cv-item, .experience-item, .skills-item { /* skills-item da eklendi */
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            background-color: #fcfcfc;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .cv-item h3, .experience-item h3, .skills-item h3 { /* skills-item h3 de eklendi */
+            margin-top: 0;
+            color: #444;
+        }
+
+        .cv-item p, .experience-item p, .skills-item p { /* skills-item p de eklendi */
+            margin-bottom: 5px;
+            color: #777;
+        }
+
+        .contact-info p {
+            margin-bottom: 10px;
+            font-size: 1.1em;
+            color: #666;
+        }
+
+        .contact-info a {
+            color: #F8BBD0;
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s ease;
+        }
+
+        .contact-info a:hover {
+            color: #F48FB1;
+            text-decoration: underline;
+        }
+
+
+        /* HOME SAYFASI İÇİN YENİ STİLLER */
+        .home-content-wrapper {
+            display: flex;
+            align-items: center; /* Dikeyde ortala */
+            gap: 40px; /* Resim ve yazı arasındaki boşluk */
+            padding: 20px;
+            box-sizing: border-box;
+            height: 100%; /* İçeriği doldurması için */
+        }
+
+        .profile-image-container {
+            flex-shrink: 0; /* Resmin küçülmesini engelle */
+            width: 250px; /* Resmin sabit genişliği */
+            height: 250px; /* Resmin sabit yüksekliği */
+            border-radius: 50%; /* Yuvarlak profil fotoğrafı */
+            overflow: hidden; /* Taşmayı gizle */
+            border: 4px solid #F8BBD0; /* Pembe çerçeve */
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15); /* Hafif gölge */
+        }
+
+        .profile-photo {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Resmi konteynıra sığdırır, oranları bozulmaz */
+            display: block;
+        }
+
+        .intro-text-container {
+            flex-grow: 1; /* Kalan alanı doldurmasını sağla */
+        }
+
+        .intro-text-container h1 {
+            color: #333;
+            font-size: 2.8em; /* Daha büyük başlık */
+            margin-bottom: 10px;
+            line-height: 1.2;
+        }
+
+        .divider {
+            width: 80%; /* Çizginin genişliği */
+            height: 3px; /* Çizginin kalınlığı */
+            background-color: #F8BBD0; /* Pembe renkli divider */
+            margin: 15px 0 20px 0; /* Üstte ve altta boşluk */
+            border-radius: 5px;
+        }
+
+        .sub-text {
+            color: #777;
+            font-size: 1.2em; /* Daha ince, orta boy font */
+            margin-top: 0;
+            line-height: 1.5;
+            font-weight: 300; /* Daha ince font ağırlığı */
+        }
+
+
+        /* RESPONSIVE TASARIM */
+        @media (max-width: 1024px) {
+            body {
+                flex-direction: column; /* Küçük ekranlarda dikey düzen */
+                justify-content: flex-start; /* İçeriği üste yasla */
+                padding: 10px;
+                overflow: auto; /* Scroll aktif olsun */
+            }
+            .sidebar-outside-frame {
+                position: relative; /* Absolute'dan çıkar */
+                left: auto;
+                top: auto;
+                transform: none; /* Manuel transformu kaldır */
+                width: 90%; /* Daha geniş alana yayılsın */
+                margin-bottom: 20px; /* İçerik penceresinden boşluk */
+                flex-direction: row; /* Butonları yatay sırala */
+                flex-wrap: wrap; /* Taşarsa alt satıra geç */
+                justify-content: center;
+                gap: 40px; /* Daha az boşluk */
+                padding: 0;
+            }
+            .nav-button {
+                min-width: unset; /* Minimum genişliği kaldır */
+                flex-grow: 1; /* Butonları eşit genişlikte yap */
+                text-align: center;
+                padding: 15px 20px; /* Daha küçük padding */
+                font-size: 1.1em; /* Daha küçük font boyutu */
+            }
+            .content-window-frame {
+                width: 90%;
+                height: 80vh; /* Yüksekliği ekrana göre ayarla */
+                max-height: 500px; /* Maksimum yükseklik */
+                position: relative; /* Gerekirse position'ı düzelt */
+                transform: none; /* Ortalamayı kaldır */
+                top: auto;
+                left: auto;
+            }
+            /* RESPONSIVE DÜZENLEME (HOME SAYFASI İÇİN) */
+            .home-content-wrapper {
+                flex-direction: column; /* Küçük ekranlarda dikey düzen */
+                text-align: center; /* Metinleri ortala */
+                gap: 25px;
+            }
+
+            .profile-image-container {
+                width: 180px; /* Küçük ekranlarda resim boyutu küçülsün */
+                height: 180px;
+                margin: 0 auto; /* Resmi ortala */
+            }
+
+            .intro-text-container h1 {
+                font-size: 2em;
+            }
+
+            .sub-text {
+                font-size: 1em;
+            }
+
+            .divider {
+                width: 60%; /* Küçük ekranlarda divider genişliği */
+                margin-left: auto;
+                margin-right: auto;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .content-window-frame {
+                height: 400px; /* Mobil de sabit yükseklik */
+                padding: 15px;
+            }
+            .content-section h2 {
+                font-size: 1.8em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .nav-button {
+                font-size: 0.8em;
+                padding: 10px;
+            }
+            .content-section h2 {
+                font-size: 1.5em;
+            }
+            .profile-image-container {
+                width: 150px;
+                height: 150px;
+            }
+            .intro-text-container h1 {
+                font-size: 1.5em;
+            }
+            .sub-text {
+                font-size: 0.9em;
+            }
+        }
+
+        /* YENİ EKLENEN STİLLER: Kedi Butonu */
+        .cat-button {
+            position: fixed;
+            bottom: 20px;
+            right: 40px; /* Sağa olan mesafeyi azaltarak sola yaklaştırıyoruz */
+            width: 130px; /* Genişliği %30 artırdık (100px * 1.3 = 130px) */
+            height: 130px; /* Yüksekliği %30 artırdık (100px * 1.3 = 130px) */
+            background-image: url('images/pianocat.PNG'); /* Kedi resminin URL'si güncellendi */
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            z-index: 1000; /* Her şeyin üstünde olsun */
+        }
+
+        .cat-button:active {
+            transform: scale(0.8); /* Tıklanınca küçülme efekti */
+        }
+
+        /* YENİ EKLENEN STİLLER: Blog Butonu */
+        .blog-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background-color: #F8BBD0; /* Pembe renk */
+            color: #fff;
+            border: 2px solid #F48FB1;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 1001; /* Diğer elementlerin üzerinde olsun */
+        }
+
+        .blog-button:hover {
+            background-color: #F48FB1;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        /* YENİ EKLENEN STİLLER: Blog Kitap Modalı */
+        .blog-modal {
+            display: none; /* Varsayılan olarak gizli */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7); /* Hafif karartılmış arka plan */
+            justify-content: center;
+            align-items: center;
+            z-index: 2000; /* En üstte olsun */
+        }
+
+        .blog-book-container {
+            position: relative;
+            width: 80vw; /* Ekran genişliğinin %80'i */
+            max-width: 900px; /* Maksimum genişlik */
+            height: 60vh; /* Ekran yüksekliğinin %60'ı */
+            max-height: 600px; /* Maksimum yükseklik */
+            background-color: #fcf8f3; /* Kitap kağıdı rengi */
+            border-radius: 5px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+            display: flex; /* İç sayfaları yan yana koymak için */
+            perspective: 1500px; /* 3D dönüşüm için */
+        }
+
+        .blog-page {
+            width: 50%; /* Kitabın her sayfası yarı genişlikte */
+            height: 100%;
+            padding: 30px;
+            box-sizing: border-box;
+            overflow-y: auto; /* Sayfa içeriği taşarsa scrollbar */
+            background-color: #fcf8f3;
+            border: 1px solid #ddd;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            transform-origin: left; /* Sayfa dönüşümünün başlangıç noktası */
+            transition: transform 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55); /* Yumuşak dönüşüm */
+            backface-visibility: hidden; /* Ters tarafın görünmemesi için */
+        }
+
+        .blog-page.left {
+            border-right: none;
+            border-radius: 5px 0 0 5px;
+        }
+
+        .blog-page.right {
+            border-left: none;
+            border-radius: 0 5px 5px 0;
+        }
+
+        .blog-page h3 {
+            color: #6a0572; /* Mor tonları */
+            margin-top: 0;
+            border-bottom: 1px dashed #e0b0ff;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .blog-page p {
+            font-size: 1em;
+            line-height: 1.6;
+            color: #555;
+            text-align: justify;
+        }
+
+
+        /* Navigasyon Okları */
+        .page-navigation {
+            position: absolute;
+            bottom: 15px; /* Alt kısma hizala */
+            width: 100%;
+            display: flex;
+            justify-content: center; /* Ortala */
+            gap: 20px; /* Oklar arası boşluk */
+            pointer-events: none; /* Okların üzerine tıklanmayı engelle */
+        }
+
+        .page-navigation button {
+            pointer-events: auto; /* Butonlara tekrar tıklanabilir yap */
+            background-color: rgba(255, 255, 255, 0.7);
+            border: 1px solid #ccc;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 1.5em;
+            cursor: pointer;
+            z-index: 2001;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.3s ease;
+            display: flex; /* İçindeki oku ortalamak için */
+            justify-content: center;
+            align-items: center;
+            color: #6a0572; /* Ok rengi mor tonu */
+        }
+
+        .page-navigation button:hover {
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+
+        .page-navigation button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+
+        /* Kapatma Butonu */
+        .close-blog-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #ff4d4d; /* Kırmızı renk */
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            font-size: 1.2em;
+            cursor: pointer;
+            z-index: 2002; /* Diğer elementlerin üzerinde olsun */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.3s ease;
+        }
+
+        .close-blog-button:hover {
+            background-color: #e60000;
+        }
+
+        /* Blog içeriği için özel scrollbar */
+        .blog-page::-webkit-scrollbar {
+            width: 8px;
+        }
+        .blog-page::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        .blog-page::-webkit-scrollbar-thumb {
+            background: #F8BBD0;
+            border-radius: 10px;
+        }
+        .blog-page::-webkit-scrollbar-thumb:hover {
+            background: #F48FB1;
+        }
+
+        /* Responsive Blog Modalı */
+        @media (max-width: 768px) {
+            .blog-book-container {
+                width: 95vw;
+                height: 80vh;
+                flex-direction: column; /* Küçük ekranlarda sayfaları alt alta diz */
+            }
+            .blog-page {
+                width: 100%;
+                height: 50%;
+                border-bottom: 1px solid #ddd;
+                border-right: 1px solid #ddd; /* Sağ sayfada da border olsun */
+                border-radius: 0;
+            }
+            .blog-page.left {
+                border-radius: 5px 5px 0 0;
+            }
+            .blog-page.right {
+                border-radius: 0 0 5px 5px;
+            }
+            .page-navigation {
+                position: relative; /* Okları modalın içine al */
+                top: auto;
+                bottom: 10px;
+                transform: none;
+                margin-top: 10px;
+            }
+            .page-navigation button#prevPage,
+            .page-navigation button#nextPage {
+                margin: 0 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <button class="blog-button" id="openBlog">BLOG</button>
+
+    <div class="sidebar-outside-frame">
+        <button class="nav-button active" data-section="home">ANA SAYFA</button>
+        <button class="nav-button" data-section="about">HAKKIMDA</button>
+        <button class="nav-button" data-section="experience">DENEYİMLERİM</button>
+        <button class="nav-button" data-section="skills">YETENEKLERİM</button>
+        <button class="nav-button" data-section="contact">İLETİŞİM</button>
+    </div>
+
+    <div class="content-window-frame">
+        <div id="home" class="content-section active">
+            <div class="home-content-wrapper">
+                <div class="profile-image-container">
+                    <img src="images/profile.jpg" alt="Selin Sena YILMAZ Profil Fotoğrafı" class="profile-photo">
+                </div>
+                <div class="intro-text-container">
+                    <h2 class="small-greeting">Merhaba, ben</h2>
+                    <h1 class="name-heading">Selin Sena Yılmaz</h1>
+                    <div class="divider"></div>
+                    <p class="role-subtitle">Psikolojik Danışman &middot; Oyun Geliştirici &middot; Dijital Çizer</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="about" class="content-section">
+            <h2>Hakkımda</h2>
+            <p>Merhaba ben Selin. Çocuk ve ergen psikolojisi, eğitim, öğrenme psikoljoisi ve teknoloji konularına ilgi duyan bir eğitimciyim.</p>
+            <p>Gazi Üniversitesi Rehberlik ve Psikolojik Danışmanlık bölümünden mezun oldum. Bu süreçte yalnızca akademik bilgiler edinmekle kalmadım, aynı zamanda teknolojinin insan davranışları ve sosyal yaşam üzerindeki etkilerini gözlemlemeye ve araştırmaya yöneldim. Özellikle çocuklar için teknolojiyi bilinçli ve etkili bir şekilde kullanmanın yollarını araştırıyorum. </p>
+            <p>Eğitimde oyunlaştırma temelli projeler geliştirmek ve bu alanda araştırmalar yapmak istiyorum. Teknolojinin bireylerin gelişiminde ve toplumun dönüşümünde önemli bir rol oynadığına inanıyorum bu yüzden erken gelişim dönemlerindeki etkileri ilgim çekiyor.</p>
+            <p>Küçüklüğümden beri çizim yapıyorum; bugün bu tutkumu dijital ortama taşıdım. Kendi çizim ve animasyonlarımı paylaştığım bir YouTube kanalım var. </p>
+            <div class="divider"></div>
+            <p>İlgi alanlarım ve deneyimlerimle ilgili daha detaylı yazılarımı sağ üstteki blog butonuna tıklayarak öğrenebilirsiniz !!</p>
+        </div>
+
+        <div id="experience" class="content-section">
+            <h2>Deneyimlerim ve Projelerim</h2>
+            <div class="experience-item">
+                <h3>Okul Sosyal Hizmet Uzmanı Stajyeri - Ernst-Reuter-Schule</h3>
+                <p><strong>Rol:</strong> Okul Sosyal Hizmet Uzmanı Stajyeri</p>
+                <p><strong>Süre:</strong> Mayıs 2025 - Devam Ediyor (2 ay) </p>
+                <ul>
+                    <li>IB programı uygulayan ve Almanca eğitim veren Ernst-Reuter-Schule’deki stajım, çok kültürlü bir sınıf ortamında gözlem yapma ve ikinci yabancı dilim olan İngilizceyle aktif çalışma deneyimi kazanmamı sağladı.</li>
+                    <li>Farklı kültürlerden gelen öğrencilerin ihtiyaçlarına yanıt vermek, beni sadece gözlemlemekle kalmayıp farklı yaklaşımlar geliştirmeye de itti. Alışık olduğum yöntemlerin yeterli olmadığını fark ettim ve çözüm yolları için Amerika ve Almanya'daki uygulamaları inceledim.</li>
+                    <li>Bu deneyimle birlikte farklılıklara karşı daha esnek, daha duyarlı ve daha yaratıcı yollar aramaya başladım.</li>
+                </ul>
+            </div>
+            <div class="experience-item">
+                <h3>Okul Psikolojik Danışman Stajyeri - Necip Fazıl İlkokulu</h3>
+                <p><strong>Rol:</strong> Okul Psikolojik Danışman Stajyeri</p>
+                <p><strong>Süre:</strong> Şubat 2025 - Mayıs 2025 (4 ay) </p>
+                <ul>
+                    <li>Zorunlu stajım kapsamında katıldığım bu süreçte, sınıf rehberlik etkinliklerini uygulama ve geliştirme fırsatı buldum. Sınıflara girerek sosyal-duygusal içerikli etkinlikler yürüttüm, rehberlik programlarını öğrenci ihtiyaçlarına göre uyarlamayı deneyimledim. </li>
+                    <li>Özellikle öğrencilerle birebir iletişim kurmaya, onlarla sohbet ederek dünyalarını daha yakından tanımaya özen gösterdim. Bu sayede sadece program uygulayıcısı değil, aynı zamanda gözlemleyen ve bağ kuran bir destek sunabildim.</li>
+                    <li>Rehberlik hizmetlerinin sosyal-duygusal, akademik ve mesleki yönlerine temas ettik; öğretmenlerle iş birliği içinde gözlem ve ihtiyaç temelli stratejiler üzerine çalışmalar yürüttük.</li>
+                </ul>
+            </div>
+            <div class="experience-item">
+                <h3>Süpervizör Desteğinde Psikolojik Danışma Uygulaması</h3>
+                <p><strong>Süre:</strong> Eylül 2024 – Haziran 2025</p>
+                   <ul>
+                    <li>Üniversitemin son sınıfında yürüttüğüm bu uygulama kapsamında, süpervizyon desteğiyle dört danışanla bireysel görüşmeler gerçekleştirdim. Her danışanla 7–10 seans arası çalıştım; süreci düzenli olarak süpervizörüme raporladım ve geri bildirimlerle ilerledim.</li>
+                    <li>Üç danışanla Bilişsel Davranışçı Terapi (BDT) ilkeleri doğrultusunda çalıştım, bir danışanda ise BDT’ye ek olarak Pozitif Psikoloji temelli tekniklerden yararlandım.</li>
+                    <li>Bu deneyim, vaka formülasyonu, seans planlama ve müdahale becerilerimi geliştirmemi sağladı.</li>
+                </ul>
+            </div>
+            <div class="experience-item">
+                <h3>Okul Psikolojik Danışman Stajyeri - Necip Fazıl Ortaokulu</h3>
+                <p><strong>Rol:</strong> Okul Psikolojik Danışman Stajyeri</p>
+                <p><strong>Süre:</strong> Eylül 2024 - Ocak 2025 (5 ay) </p>
+                <ul>
+                    <li>Bu staj sürecinde, destek eğitimi faaliyetlerini ve rehberlik hizmetlerinin uygulamalı yönlerini yakından gözlemleme fırsatı buldum. Sürecin işleyişinden belge düzenlemelerine kadar olan yapıyı öğrenirken, öğrencilerle doğrudan iletişim kurarak aktif şekilde sahada yer aldım. </li>
+                    <li>Ergenlik dönemi, sınav kaygısı ve çatışma çözme gibi konularda bireysel görüşmelere ve grup çalışmalarına katıldım. Veli görüşmeleri ve adli vaka bildirim süreçlerine gözlemci olarak dâhil oldum; raporlama ve bilgilendirme süreçlerini ilk elden izleme şansı yakaladım.</li>
+                    <li>Ayrıca sınıf rehberlik etkinlikleri uyguladım ve son sınıf öğrencileriyle mesleki ilgi alanları üzerine birebir sohbetler gerçekleştirdim. Hem gelişimsel hem yönlendirici rehberlik alanlarında deneyim kazanma fırsatı buldum.</li>
+                </ul>
+            </div>
+            <div class="experience-item">
+                <h3>Unity Geliştirici - ERNA MAŞ MAKİNA TİCARET VE SANAYİ A.Ş.</h3>
+                <p><strong>Rol:</strong> Unity Geliştirici</p>
+                <p><strong>Süre:</strong> Temmuz 2024 - Aralık 2024 (6 ay) </p>
+                <ul>
+                    <li>C# programlama dili ve Unity oyun motorunu kullanarak fabrikanın dijital ikizini oluşturdum. Bu projede, hazır 3D modeller üzerinden ilerleyerek gerçek hayattaki operasyonları birebir simüle eden bir sistem geliştirdim.</li>
+                    <li>Amaç, fabrikada gerçekleşebilecek senaryoları önceden test edebilmek ve sistem üzerinde dinamik müdahaleleri görselleştirmekti. Makineler, konveyör sistemleri ve çalışanların davranışlarını kodladım; bir üretim hattı üzerinden tüm sisteme genellenebilecek bir yapı kurmaya odaklandım.</li>
+                    <li>Kullanıcı deneyimini ön planda tutarak arayüz (UI/UX) tasarımını gerçekleştirdim ve etkileşimli simülasyonu işlevsel bir hale getirdim. Proje, gerçek dünya süreçlerini oyun tabanlı bir yaklaşımla yeniden kurmak açısından hem yaratıcı hem mühendislik odaklı bir çalışma oldu.</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div id="skills" class="content-section">
+            <h2>Yeteneklerim</h2>
+            <div class="skills-item">
+                <h3>Başlıca Yetenekler</h3>
+                <ul>
+                    <li>
+                        <strong>Bilimsel Araştırma & Veri Analizi</strong><br>
+                        <span>SPSS, veri kodlama, ölçek puanlama, istatistiksel yorumlama, raporlama</span>
+                    </li>
+                    <li>
+                        <strong>Çocuk & Ergen Psikolojisi</strong><br>
+                        <span>Ergenlik dönemi, sınav kaygısı, akran ilişkileri, sosyal-duygusal gelişim deneyimi</span>
+                    </li>
+                    <li>
+                        <strong>Çok kültürlü Eğitim Ortamlarıyla Çalışma</strong><br>
+                        <span>İngilizce iletişim, farklı eğitim sistemlerine uyum, gözlem ve analiz</span>
+                    </li>
+                    <li>
+                        <strong>Dijital İçerik Üretimi</strong><br>
+                        <span>Dijital çizim, animasyon, YouTube içerik üretimi, görsel anlatım</span>
+                    </li>
+                </ul>
+            </div>
+            <div class="skills-item">
+                <h3>Diller</h3>
+                <ul>
+                    <li>Almanca (Temel) </li>
+                    <li>İngilizce (Profesyonel Çalışma Düzeyi) </li>
+                </ul>
+            </div>
+            <div class="skills-item">
+                <h3>Sertifikalar</h3>
+                <ul>
+                    <li>Uyku, Rüya ve Nörobilim Sempozyumu </li>
+                    <li>Terapötik Kartlar </li>
+                    <li>C# Programlama </li>
+                    <li>İstatistiğe Giriş </li>
+                </ul>
+            </div>
+            <div class="skills-item">
+                <h3>Dijital Sanat ve Tasarım</h3>
+                <ul>
+                    <li><strong>Yazılımlar:</strong> Procreate, Adobe Photoshop, Clip Studio Paint</li>
+                    <li><strong>Çizim Teknikleri:</strong> Dijital illüstrasyon, karakter tasarımı, konsept sanat</li>
+                    <li><strong>Araçlar:</strong> Grafik tablet kullanımı (Wacom, iPad Pro)</li>
+                    <li>Renk teorisi ve kompozisyon bilgisi</li>
+                </ul>
+            </div>
+        </div>
+
+        <div id="contact" class="content-section">
+            <h2>İletişim</h2>
+            <div class="contact-info">
+                <p>Bana ulaşmak için aşağıdaki yöntemleri kullanabilirsiniz:</p>
+                <p><strong>E-posta:</strong> <a href="mailto:yselinsena@gmail.com">yselinsena@gmail.com</a></p>
+                <p><strong>LinkedIn:</strong> <a href="https://www.linkedin.com/in/selin-sena-yilmaz" target="_blank">linkedin.com/in/selin-sena-yilmaz</a></p>
+            </div>
+        </div>
+    </div>
+
+    <button class="cat-button" id="catButton"></button>
+
+    <div class="blog-modal" id="blogModal">
+        <div class="blog-book-container" id="blogBookContainer">
+            <button class="close-blog-button" id="closeBlog">&times;</button>
+            <div class="blog-page left" data-page="1">
+                <h3>Blog Sayfası 1 - Başlık</h3>
+                <p>
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+                </p>
+                <p>
+                    Curabitur pretium tincidunt lacus, ac ultrices nisi. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Vivamus at diam vel erat scelerisque placerat. Nulla facilisi. Proin eleifend, justo id feugiat dapibus, ante orci auctor nulla, in tristique felis nisi in dolor.
+                </p>
+                <p>
+                    Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.
+                </p>
+            </div>
+            <div class="blog-page right" data-page="2">
+                <h3>Blog Sayfası 2 - Devamı</h3>
+                <p>
+                    Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur?
+                </p>
+                <p>
+                    Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?
+                </p>
+                <p>
+                    At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga.
+                </p>
+                <p>
+                    Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus, omnis voluptas assumenda est, omnis dolor repellendus. Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet ut et voluptates repudiandae sint et molestiae non recusandae. Itaque earum rerum hic tenetur a sapiente delectus, ut aut reiciendis voluptatibus maiores alias consequatur aut perferendis doloribus asperiores repellat.
+                </p>
+            </div>
+            <div class="blog-page left" data-page="3" style="display: none;">
+                <h3>Blog Sayfası 3 - Yeni Konular</h3>
+                <p>
+                    Bu sayfa blogumuzdaki yeni ve ilgi çekici konulara ayrılmıştır. Son araştırmalarımız ve kişisel deneyimlerimizle harmanlanmış derinlemesine analizleri burada bulabilirsiniz. Eğitimde teknolojinin entegrasyonu, çocuk gelişimindeki son trendler ve psikolojik danışmanlık alanındaki yenilikçi yaklaşımlar hakkında daha fazla bilgi edinin.
+                </p>
+                <p>
+                    Özellikle oyunlaştırma ve dijital sanatın öğrenme süreçleri üzerindeki etkileri üzerine yaptığımız çalışmalar, bu bölümde detaylıca incelenmektedir. Kullanıcı etkileşimini artırmak ve karmaşık bilgileri daha erişilebilir kılmak için kullandığımız yaratıcı metodolojileri keşfedin.
+                </p>
+                <p>
+                    Ayrıca, farklı kültürlerdeki eğitim sistemlerinin karşılaştırmalı analizi ve bu sistemlerin öğrencilerin sosyal-duygusal gelişimine etkileri gibi konular da işlenmektedir. Amacımız, hem teorik bilgiyi hem de pratik uygulamaları bir araya getirerek okuyucularımıza kapsamlı bir bakış açısı sunmaktır.
+                </p>
+            </div>
+            <div class="blog-page right" data-page="4" style="display: none;">
+                <h3>Blog Sayfası 4 - Gelecek ve İpuçları</h3>
+                <p>
+                    Geleceğin eğitim ve psikolojik danışmanlık alanındaki potansiyellerini bu sayfada tartışıyoruz. Yapay zeka destekli öğrenme platformları, sanal gerçeklik ile terapi uygulamaları ve dijital dünyada sağlıklı birey gelişimini destekleyici stratejiler gibi konulara değiniyoruz.
+                </p>
+                <p>
+                    Bu bölümde aynı zamanda, dijital içerik üretimi ve kişisel markalaşma konularında pratik ipuçları da bulacaksınız. Kendi YouTube kanalınızı nasıl oluşturabileceğinizden, etkili görsel içerikler hazırlamaya kadar çeşitli konularda rehberlik sağlıyoruz.
+                </p>
+                <p>
+                    Okuyucularımızın da katkılarıyla zenginleşen bu bölüm, interaktif tartışmalar ve Soru-Cevap köşeleriyle sürekli güncel kalacaktır. Sizin de fikirlerinizi ve deneyimlerinizi paylaşmanız için bir platform sunmayı hedefliyoruz.
+                </p>
+                <p>
+                    Unutmayın, öğrenme ve gelişim dinamik bir süreçtir. Bu blog sayfaları, bu yolculukta size eşlik etmek ve ilham vermek için tasarlanmıştır. Yeni içerikler için bizi takipte kalın!
+                </p>
+            </div>
+            <div class="page-navigation">
+                <button id="prevPage">&lt;</button>
+                <button id="nextPage">&gt;</button>
+            </div>
+        </div>
+    </div>
+
+    <audio id="catSound" src="sounds/meow.mp3" preload="auto"></audio>
+
+    <script>
+        // Portfolyo sayfaları arasındaki geçişler
+        document.addEventListener('DOMContentLoaded', () => {
+            const navButtons = document.querySelectorAll('.nav-button');
+            const contentSections = document.querySelectorAll('.content-section');
+            const catButton = document.querySelector('.cat-button'); // Kedi butonunu seç
+            const catSound = document.getElementById('catSound'); // Ses elementini seç
+
+
+            navButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    // Tüm butonlardan 'active' sınıfını kaldır
+                    navButtons.forEach(btn => btn.classList.remove('active'));
+                    // Tıklanan butona 'active' sınıfını ekle
+                    button.classList.add('active');
+
+                    // Tüm içerik bölümlerini gizle
+                    contentSections.forEach(section => section.classList.remove('active'));
+                    // Tıklanan butona karşılık gelen içerik bölümünü göster
+                    const targetSectionId = button.dataset.section;
+                    document.getElementById(targetSectionId).classList.add('active');
+                });
+            });
+
+            // Blog Modalı İşlevselliği
+            const openBlogButton = document.getElementById('openBlog');
+            const blogModal = document.getElementById('blogModal');
+            const closeBlogButton = document.getElementById('closeBlog');
+            const blogBookContainer = document.getElementById('blogBookContainer');
+            const prevPageButton = document.getElementById('prevPage');
+            const nextPageButton = document.getElementById('nextPage');
+            const blogPages = document.querySelectorAll('.blog-page');
+            
+
+            let currentPage = 1; // Başlangıç sayfa numarası
+
+            // Blog Modalını Aç
+            openBlogButton.addEventListener('click', () => {
+                blogModal.style.display = 'flex';
+                showPages(currentPage); // Modalı açtığında mevcut sayfayı göster
+            });
+
+            // Blog Modalını Kapat
+            closeBlogButton.addEventListener('click', () => {
+                blogModal.style.display = 'none';
+                // Modalı kapatırken sayfa durumunu sıfırlayabilir veya son kalan sayfada bırakabilirsiniz.
+                // Resetlemek isterseniz: currentPage = 1; showPages(currentPage);
+            });
+
+              // Kedi butonuna tıklanınca sesi çal
+            catButton.addEventListener('click', () => {
+                if (catSound) {
+                    catSound.currentTime = 0; // Her tıklamada sesi baştan başlat
+                    catSound.play();
+                }
+            });
+
+            // Sayfaları gösterme işlevi
+            function showPages(pageNumber) {
+                blogPages.forEach(page => page.style.display = 'none'); // Tüm sayfaları gizle
+
+                const leftPageIndex = pageNumber;
+                const rightPageIndex = pageNumber + 1;
+
+                const leftPage = document.querySelector(`.blog-page[data-page="${leftPageIndex}"]`);
+                const rightPage = document.querySelector(`.blog-page[data-page="${rightPageIndex}"]`);
+
+                if (leftPage) {
+                    leftPage.style.display = 'flex'; // Sol sayfayı göster
+                }
+                if (rightPage) {
+                    rightPage.style.display = 'flex'; // Sağ sayfayı göster
+                }
+                
+                // Ok butonlarının görünürlüğünü/pasifliğini ayarla
+                prevPageButton.disabled = (pageNumber === 1); // İlk sayfada geri butonu pasif
+                nextPageButton.disabled = (pageNumber + 1 >= blogPages.length); // Son sayfada ileri butonu pasif
+            }
+
+
+            // Önceki Sayfaya Git
+            prevPageButton.addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage -= 2; // İkişer sayfa geri git
+                    showPages(currentPage);
+                    blogBookContainer.classList.remove('turn-page'); // Sayfa dönüş animasyonunu kaldır
+                }
+            });
+
+            // Sonraki Sayfaya Git
+            nextPageButton.addEventListener('click', () => {
+                // blogPages.length, toplam sayfa sayısıdır.
+                // currentPage + 1, şu anki sağdaki sayfanın indeksi.
+                // Eğer sağdaki sayfa, toplam sayfa sayısından küçükse ilerleyebiliriz.
+                if (currentPage + 1 < blogPages.length) { 
+                    currentPage += 2; // İkişer sayfa ileri git
+                    showPages(currentPage);
+                    blogBookContainer.classList.add('turn-page'); // Sayfa dönüş animasyonunu ekle
+                }
+            });
+
+        });
+    </script>
+</body>
+</html>
